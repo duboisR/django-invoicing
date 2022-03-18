@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <meta name="description" content="Invoice">
+  </head>
+
+  <body>
+    <h1>Invoice</h1>
+
+    <aside>
+      <address id="from">
+        WeasyPrint<br />
+        26 rue Emile Decorps - 69100 Villeurbanne
+      </address>
+
+      <address id="to">
+        {% if company_name %}{{object.company_name}} ({{object.company_vat}})<br />{% endif %}
+        {{object.contact_last_name}} {{object.contact_first_name}}<br />
+        {{object.get_address}}
+      </address>
+    </aside>
+
+    <dl id="informations">
+      <dt>Invoice number</dt>
+      <dd>{{object.invoice_number}}</dd>
+      <dt>Date</dt>
+      <dd>{{object.invoice_date|date:"M d, Y"}}</dd>
+    </dl>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>VAT</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoiceitem in object.invoiceitem_set.all %}
+        <tr>
+          <td>{{invoiceitem.product_description}}</td>
+          <td>{{invoiceitem.product_price|floatformat:2}}</td>
+          <td>{{invoiceitem.product_quantity}}</td>
+          <td>{{invoiceitem.product_vat}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <table id="total">
+      <tbody>
+        {% with prices=object.get_prices %}
+        <tr>
+            <td>EXCL. VAT</td>
+            <td>{{prices.excl_tax|floatformat:2}}€</td>
+        </tr>
+        {% if prices.discount %}
+        <tr>
+            <td>DISCOUNT (prices.discount.0)</td>
+            <td>{{prices.discount.1|floatformat:2}}€</td>
+        </tr>
+        <tr>
+            <td>EXCL. VAT after discount</td>
+            <td>{{prices.excl_tax_discount|floatformat:2}}€</td>
+        </tr>
+        {% endif %}
+        {% for vat, val in prices.vat.items %}
+        <tr>
+            <td>VAT ({{vat}}%)</td>
+            <td>{{val|floatformat:2}}€</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>TOTAL</td>
+            <td>{{prices.incl_tax|floatformat:2}}€</td>
+        </tr>
+        {% endwith %}
+      </tbody>
+    </table>
+    
+  </body>
+</html>

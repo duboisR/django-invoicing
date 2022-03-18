@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+  <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+  {{block.super}}
+  <style>
+    .center {
+      text-align: center;
+      margin: 10px 0 15px 0;
+    }
+    
+    .pagination {
+      display: inline-block;
+    }
+    
+    .pagination a {
+      color: black;
+      float: left;
+      text-decoration: none;
+      transition: background-color .3s;
+      border: 1px solid #ddd;
+      margin: 0 4px;
+      border-radius: 4px;
+      padding: 10px 15px;
+    }
+    
+    .pagination a.current {
+      border: none;
+    }
+
+    .pagination a.active {
+      display: block;
+      background: #417690;
+      color: #fff;
+    }
+    
+    .pagination a:hover:not(.active) {cursor: default;}
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {% trans 'Aperçu' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>
+  Aperçu: {{opts.verbose_name}} - {{target_instance}}
+</h1>
+<div id="content-main">
+  <ul class="object-tools">
+    <li>
+        <a href="{{detail_url}}" class="historylink">Détail</a>
+    </li>  
+  </ul>
+  <fieldset class='module aligned'>
+    <div class="center">
+      <div class="pagination">
+          {% if paginator.previous_url %}
+            <a href="{{paginator.previous_url}}" class="active" title="Page précédente">&lt;</a>
+          {% else %}
+            <a href="#">&lt;</a>
+          {% endif %}
+  
+          <a href="#" class="current">{{opts.verbose_name}} - {{target_instance}}</a>
+  
+          {% if paginator.next_url %}
+            <a href="{{paginator.next_url}}" class="active" title="Page suivante">&gt;</a>
+          {% else %}
+            <a href="#">&gt;</a>
+          {% endif %}
+      </div>
+    </div>
+
+    <iframe id="iframePreview" src="{{iframe_url}}#toolbar=0&view=Fit&zoom=Fit" width="100%" frameborder="0" title="Document Preview"></iframe>
+  </fieldset>
+</div>
+
+<!-- Iframe script -->
+<script type="text/javascript">
+  (function () {
+    // Selecting the iframe element
+    var iframe = document.getElementById("iframePreview");
+    // Adjusting the iframe height onload event
+    iframe.onload = function(){
+      iframe.style.height = document.body.scrollHeight + "px";
+    }
+  })();
+</script>
+{% endblock %}
